@@ -1,0 +1,119 @@
+import { useEffect, useRef, useState } from 'react'
+import { createSiweMessage } from 'viem/siwe'
+import accountApi from '../api/account.api'
+import { Loader2 } from 'lucide-react'
+import { WalletItem } from '../types/wallet-item.class'
+import { useCodattaSigninContext } from '../codatta-signin-context-provider'
+
+const CONNECT_GUIDE_MESSAGE = 'Accept connection request in the wallet'
+const MESSAGE_SIGN_GUIDE_MESSAGE = 'Accept sign-in request in your wallet'
+
+function getSiweMessage(address: `0x${string}`, nonce: string) {
+  const domain = window.location.host
+  const uri = window.location.href
+  const message = createSiweMessage({
+    address: address,
+    chainId: 1,
+    domain,
+    nonce,
+    uri,
+    version: '1',
+  })
+  return message
+}
+
+export default function WalletConnect(props: {
+  wallet: WalletItem
+  onSignFinish: (params: {
+    message: string
+    nonce: string
+    signature: string
+    address: string
+    wallet_name: string
+  }) => Promise<void>
+  onShowQrCode: () => void
+}) {
+  const [error, setError] = useState<string>()
+  const { wallet, onSignFinish, onShowQrCode } = props
+  const nonce = useRef<string>()
+  const [guideType, setGuideType] = useState<'connect' | 'sign' | 'waiting'>('connect')
+  const { saveLastUsedInfo } = useCodattaSigninContext()
+
+  async function walletSignin(nonce: string) {
+    try {
+      setGuideType('connect')
+      const address = await wallet.connect()
+      if (!address || address.length === 0) {
+        throw new Error('Wallet connect error')
+      }
+      const message = getSiweMessage(address[0], nonce)
+      setGuideType('sign')
+      const signature = await wallet.signMessage(message)
+      if (!signature || signature.length === 0) {
+        throw new Error('user sign error')
+      }
+      setGuideType('waiting')
+      await onSignFinish({ address: address[0], signature, message, nonce, wallet_name: wallet.info.name })
+      saveLastUsedInfo(
+        {
+          connector: 'codatta-connect',
+          method: 'injected',
+          walletName: wallet.info.name,
+        },
+        wallet,
+      )
+    } catch (err: any) {
+      console.log(err.details)
+      setError(err.details || err.message)
+    }
+  }
+
+  function handleShowQrCode() {
+    setError('')
+    onShowQrCode()
+  }
+
+  async function initWalletConnect() {
+    try {
+      setError('')
+      const res = await accountApi.getNonce()
+      nonce.current = res
+      walletSignin(nonce.current)
+    } catch (err: any) {
+      setError(err.message)
+    }
+  }
+
+  useEffect(() => {
+    initWalletConnect()
+  }, [])
+
+  return (
+    <div className="xc-flex xc-flex-col xc-items-center xc-justify-center xc-gap-4">
+      <img className="xc-rounded-md xc-h-16 xc-w-16" src={wallet.info.image} alt="" />
+
+      {error && (
+        <div className="xc-flex xc-flex-col xc-items-center">
+          <p className="xc-text-danger xc-mb-2 xc-text-center">{error}</p>
+          <div className='xc-flex xc-gap-2'>
+            <button className="xc-rounded-full xc-bg-gray-100 xc-px-6 xc-py-1" onClick={handleShowQrCode}>Show QR Code</button>
+            <button className="xc-rounded-full xc-bg-gray-100 xc-px-6 xc-py-1" onClick={initWalletConnect}>
+              Retry
+            </button>
+          </div>
+        </div>
+      )}
+      {!error && (
+        <>
+          {guideType === 'connect' && <span className="xc-text-center">{CONNECT_GUIDE_MESSAGE}</span>}
+          {guideType === 'sign' && <span className="xc-text-center">{MESSAGE_SIGN_GUIDE_MESSAGE}</span>}
+          {guideType === 'waiting' && (
+            <span className="xc-text-center">
+              <Loader2 className="xc-animate-spin"></Loader2>
+            </span>
+          )}
+        </>
+      )}
+    </div>
+  )
+}
