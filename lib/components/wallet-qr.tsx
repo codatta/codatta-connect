@@ -1,15 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import QRCodeStyling from 'qr-code-styling'
-import { UniversalProvider } from '@walletconnect/universal-provider'
-import { mainnet } from 'viem/chains'
-import { createWalletClient, custom } from 'viem'
+import { UniversalProvider, UniversalProviderOpts } from '@walletconnect/universal-provider'
 import { Link2, Download, Loader2, CheckCircle } from 'lucide-react'
 import { createSiweMessage } from 'viem/siwe'
 import { WalletItem } from '../types/wallet-item.class'
-import { useCodattaSigninContext } from '../codatta-signin-context-provider'
+import { useCodattaConnectContext } from '../codatta-signin-context-provider'
 import accountApi from '../api/account.api'
 
-const walletConnectConfig = {
+const walletConnectConfig:UniversalProviderOpts = {
   projectId: '7a4434fefbcc9af474fb5c995e47d286',
   metadata: {
     name: 'codatta',
@@ -41,14 +39,6 @@ const walletProviderConnectConfig = {
   skipPairing: false,
 }
 
-// function isAndroid() {
-//   return /Android/i.test(navigator.userAgent)
-// }
-
-// function isIOS() {
-//   return /iPhone|iPad|iPod/i.test(navigator.userAgent)
-// }
-
 function getSiweMessage(address: `0x${string}`, nonce: string) {
   const domain = window.location.host
   const uri = window.location.href
@@ -65,13 +55,12 @@ function getSiweMessage(address: `0x${string}`, nonce: string) {
 export default function WalletQr(props: {
   wallet: WalletItem
   onGetExtension: () => void
-  onSignFinish: (params: {
+  onSignFinish: (wallet: WalletItem, signInfo: {
     message: string
     nonce: string
     signature: string
     address: string
     wallet_name: string
-    topic_id?: string
   }) => Promise<void>
 }) {
   const qrCodeContainer = useRef<HTMLDivElement>(null)
@@ -81,17 +70,20 @@ export default function WalletQr(props: {
   const [error, setError] = useState('')
   const [guideType, setGuideType] = useState<'scan' | 'connect' | 'sign' | 'waiting'>('scan')
   const qrCode = useRef<QRCodeStyling>()
-  const [image, setImage] = useState(wallet.info.image)
+  const [image, setImage] = useState(wallet.config?.image)
   const [copied, setCopied] = useState(false)
 
-  const { saveLastUsedInfo } = useCodattaSigninContext()
+  const { saveLastUsedWallet } = useCodattaConnectContext()
 
   async function getWcUri(wallet: WalletItem) {
     setUriLoading(true)
     const provider = await UniversalProvider.init(walletConnectConfig)
+
+    console.log('provider', provider.session)
     try {
       setGuideType('scan')
       provider.on('display_uri', (uri:string) => {
+        console.log('display_uri', uri)
         setWcUri(uri)
         setUriLoading(false)
         setGuideType('scan')
@@ -99,41 +91,31 @@ export default function WalletQr(props: {
       provider.on('error', (err:any) => {
         console.log(err)
       })
-      const client = createWalletClient({ chain: mainnet, transport: custom(provider) })
+      provider.on('session_update', (session:any) => {
+        console.log('session_update', session)
+      })
+      
       const session = await provider.connect(walletProviderConnectConfig)
       if (!session) throw new Error('Walletconnect init failed')
-      const peerName = session.peer?.metadata?.name || wallet.info.name
-      const peerIcon = session.peer?.metadata?.icons[0] || wallet.info.image
-      setImage(peerIcon)
-      const address = await client.getAddresses()
-      const nonce = await accountApi.getNonce()
-      const message = getSiweMessage(address[0], nonce)
+      const newWallet = new WalletItem(provider)
+      saveLastUsedWallet(newWallet)
+      setImage(newWallet.config?.image || wallet.config?.image)
+      const address = await newWallet.getAddress()
+      const nonce = await accountApi.getNonce({account_type: 'block_chain'})
+      const message = getSiweMessage(address, nonce)
       setGuideType('sign')
-      const signature = await client.signMessage({ message, account: address[0] })
+      const signature = await newWallet.signMessage(message) as string
       setGuideType('waiting')
-      console.log('session', session)
-      wallet.setProvider(provider)
-      await onSignFinish({
-        address: address[0],
-        signature,
+      await onSignFinish(newWallet, {
         message,
         nonce,
-        wallet_name: peerName,
-        topic_id: session.pairingTopic,
+        signature,
+        address,
+        wallet_name: newWallet.config?.name || wallet.config?.name || ''
       })
-      saveLastUsedInfo(
-        {
-          connector: 'codatta-connect',
-          method: 'wallet-connect',
-          walletName: peerName,
-          pairingTopic: session.pairingTopic,
-          topicId: session.topic,
-        },
-        wallet,
-      )
     } catch (err: any) {
       setError(err.details || err.message)
-      provider.disconnect()
+      
     }
   }
 
@@ -143,7 +125,7 @@ export default function WalletQr(props: {
       height: 264,
       margin: 0,
       type: 'svg',
-      image: wallet.info.image,
+      image: wallet.config?.image,
       qrOptions: {
         errorCorrectionLevel: 'M',
       },
@@ -223,12 +205,12 @@ export default function WalletQr(props: {
             </>
           )}
         </button>
-        <button
+        {wallet.config?.getWallet &&  <button
           className="xc-rounded-2 xc-flex xc-min-w-[160px] xc-flex-1 xc-shrink-0 xc-items-center xc-justify-center xc-gap-2 xc-rounded-full xc-border xc-py-2 xc-text-sm xc-transition-all xc-hover:bg-white xc-hover:text-black"
           onClick={onGetExtension}
         >
           <Download></Download>Get Extension
-        </button>
+        </button>}
       </div>
       <div className="xc-text-center">
         {error ? (

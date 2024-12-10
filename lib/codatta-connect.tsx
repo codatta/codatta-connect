@@ -3,7 +3,6 @@ import SigninIndex from './components/signin-index'
 import AnimateContainer from './components/animate-container'
 import { WalletItem } from './types/wallet-item.class'
 import WalletConnectWidget from './components/wallet-connect-widget'
-import { useCodattaSigninContext } from './codatta-signin-context-provider'
 
 export default function CodattaConnect(props: {
   onSelectMoreWallets: () => void
@@ -13,14 +12,14 @@ export default function CodattaConnect(props: {
   const { onSelectMoreWallets, onSelectTonConnect, onConnect } = props
   const [step, setStep] = useState('')
   const [wallet, setWallet] = useState<WalletItem | null>(null)
-  const { installedWallets, featuredWallets } = useCodattaSigninContext()
 
   function handleSelectWallet(wallet: WalletItem) {
     setWallet(wallet)
     setStep('wallet')
   }
 
-  function handleSelectEmail() {
+  function handleSelectEmail(email:string) {
+    console.log('handleSelectEmail', email)
     setStep('email')
   }
 
@@ -32,7 +31,6 @@ export default function CodattaConnect(props: {
 
   useEffect(() => {
     setStep('index')
-    console.log(installedWallets, featuredWallets)
   }, [])
 
   return (
@@ -46,7 +44,7 @@ export default function CodattaConnect(props: {
       )}
       {step === 'index' && (
         <SigninIndex
-          onSelectEmail={handleSelectEmail}
+          onEmailConfirm={handleSelectEmail}
           onSelectWallet={handleSelectWallet}
           onSelectMoreWallets={onSelectMoreWallets}
           onSelectTonConnect={onSelectTonConnect!}

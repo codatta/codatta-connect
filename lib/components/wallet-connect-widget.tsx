@@ -5,20 +5,16 @@ import WalletQr from './wallet-qr'
 import WalletConnect from './wallet-connect'
 import GetWallet from './get-wallet'
 import { WalletItem } from '../types/wallet-item.class'
-import { useCodattaSigninContext } from '../codatta-signin-context-provider'
 
 export default function WalletConnectWidget(props: {
   wallet: WalletItem
   onConnect: (wallet: WalletItem) => void
   onBack: () => void
 }) {
-  const context = useCodattaSigninContext()
   const { wallet, onConnect } = props
-  console.log('WalletConnectWidget', context)
-  const [step, setStep] = useState(wallet?.state?.detected ? 'connect' : 'qr')
+  const [step, setStep] = useState(wallet.installed ? 'connect' : 'qr')
 
   async function handleSignFinish() {
-    console.log('handleSignFinish', context)
     onConnect(wallet)
   }
 

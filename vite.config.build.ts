@@ -5,7 +5,11 @@ import path from 'path'
 import tailwindcss from "tailwindcss"
 
 export default defineConfig({
-
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./lib"),
+    },
+  },
   build: {
 
     lib: {

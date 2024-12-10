@@ -3,7 +3,7 @@ import { createSiweMessage } from 'viem/siwe'
 import accountApi from '../api/account.api'
 import { Loader2 } from 'lucide-react'
 import { WalletItem } from '../types/wallet-item.class'
-import { useCodattaSigninContext } from '../codatta-signin-context-provider'
+import { useCodattaConnectContext } from '../codatta-signin-context-provider'
 
 const CONNECT_GUIDE_MESSAGE = 'Accept connection request in the wallet'
 const MESSAGE_SIGN_GUIDE_MESSAGE = 'Accept sign-in request in your wallet'
@@ -24,7 +24,7 @@ function getSiweMessage(address: `0x${string}`, nonce: string) {
 
 export default function WalletConnect(props: {
   wallet: WalletItem
-  onSignFinish: (params: {
+  onSignFinish: (wallet:WalletItem , params: {
     message: string
     nonce: string
     signature: string
@@ -34,10 +34,10 @@ export default function WalletConnect(props: {
   onShowQrCode: () => void
 }) {
   const [error, setError] = useState<string>()
-  const { wallet, onSignFinish, onShowQrCode } = props
+  const { wallet, onSignFinish } = props
   const nonce = useRef<string>()
   const [guideType, setGuideType] = useState<'connect' | 'sign' | 'waiting'>('connect')
-  const { saveLastUsedInfo } = useCodattaSigninContext()
+  const { saveLastUsedWallet } = useCodattaConnectContext()
 
   async function walletSignin(nonce: string) {
     try {
@@ -53,33 +53,27 @@ export default function WalletConnect(props: {
         throw new Error('user sign error')
       }
       setGuideType('waiting')
-      await onSignFinish({ address: address[0], signature, message, nonce, wallet_name: wallet.info.name })
-      saveLastUsedInfo(
-        {
-          connector: 'codatta-connect',
-          method: 'injected',
-          walletName: wallet.info.name,
-        },
-        wallet,
-      )
+      await onSignFinish(wallet, { address: address[0], signature, message, nonce, wallet_name: wallet.config?.name || '' })
+      saveLastUsedWallet(wallet)
     } catch (err: any) {
       console.log(err.details)
       setError(err.details || err.message)
     }
   }
 
-  function handleShowQrCode() {
-    setError('')
-    onShowQrCode()
-  }
+  // function handleShowQrCode() {
+  //   setError('')
+  //   onShowQrCode()
+  // }
 
   async function initWalletConnect() {
     try {
       setError('')
-      const res = await accountApi.getNonce()
+      const res = await accountApi.getNonce({account_type: 'block_chain'})
       nonce.current = res
       walletSignin(nonce.current)
     } catch (err: any) {
+      console.log(err.details)
       setError(err.message)
     }
   }
@@ -90,13 +84,13 @@ export default function WalletConnect(props: {
 
   return (
     <div className="xc-flex xc-flex-col xc-items-center xc-justify-center xc-gap-4">
-      <img className="xc-rounded-md xc-h-16 xc-w-16" src={wallet.info.image} alt="" />
+      <img className="xc-rounded-md xc-h-16 xc-w-16" src={wallet.config?.image} alt="" />
 
       {error && (
         <div className="xc-flex xc-flex-col xc-items-center">
           <p className="xc-text-danger xc-mb-2 xc-text-center">{error}</p>
           <div className='xc-flex xc-gap-2'>
-            <button className="xc-rounded-full xc-bg-gray-100 xc-px-6 xc-py-1" onClick={handleShowQrCode}>Show QR Code</button>
+            {/* <button className="xc-rounded-full xc-bg-gray-100 xc-px-6 xc-py-1" onClick={handleShowQrCode}>Show QR Code</button> */}
             <button className="xc-rounded-full xc-bg-gray-100 xc-px-6 xc-py-1" onClick={initWalletConnect}>
               Retry
             </button>

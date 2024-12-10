@@ -1,31 +1,41 @@
 import { useEffect, useState } from 'react'
 import SigninIndex from './components/signin-index'
 import EmailLoginWidget from './components/email-login'
-import WalletLoginWidget from './components/wallet-login-widget'
+import EvmWalletLoginWidget from './components/evm-wallet-login-widget'
+import TonWalletLoginWidget from './components/ton-wallet-login-widget'
 import AnimateContainer from './components/animate-container'
 import { WalletItem } from './types/wallet-item.class'
+import WalletList from './components/wallet-list'
+import { ILoginResponse } from './api/account.api'
+
+type TStep = 'index' | 'email' | 'evm-wallet' | 'all-wallet' | 'ton-wallet' | ''
+
+
 
 export function CodattaSignin(props: {
-  onSelectMoreWallets: () => void
-  onSelectTonConnect: () => void
-  onLogin: (token: string, uid: string, new_user: boolean) => Promise<void>
-  source: string
+  onLogin: (res: ILoginResponse) => Promise<void>
 }) {
-  const { onSelectMoreWallets, onSelectTonConnect, onLogin, source } = props
-  const [step, setStep] = useState('')
+  const { onLogin } = props
+  const [step, setStep] = useState<TStep>('')
   const [wallet, setWallet] = useState<WalletItem | null>(null)
+  const [email, setEmail] = useState<string>('')
 
   function handleSelectWallet(wallet: WalletItem) {
     setWallet(wallet)
-    setStep('wallet')
+    setStep('evm-wallet')
   }
 
-  function handleSelectEmail() {
+  function handleSelectEmail(email:string) {
     setStep('email')
+    setEmail(email)
   }
 
-  async function hanleLoginSuccess(token: string, uid: string, new_user: boolean) {
-    onLogin(token, uid, new_user)
+  async function hanleLoginSuccess(res:ILoginResponse) {
+    await onLogin(res)
+  }
+
+  function onSelectTonConnect() {
+    setStep('ton-wallet')
   }
 
   useEffect(() => {
@@ -34,22 +44,27 @@ export function CodattaSignin(props: {
 
   return (
     <AnimateContainer className="xc-rounded-2xl xc-transition-height xc-box-content xc-w-full xc-min-w-[277px] xc-max-w-[420px] xc-p-6 xc-border ">
-      {step === 'wallet' && (
-        <WalletLoginWidget
+      {step === 'evm-wallet' && (
+        <EvmWalletLoginWidget
           onBack={() => setStep('index')}
           onLogin={hanleLoginSuccess}
           wallet={wallet!}
-          source={source}
-        ></WalletLoginWidget>
+        ></EvmWalletLoginWidget>
+      )}
+      {step === 'ton-wallet' && (
+        <TonWalletLoginWidget
+          onBack={() => setStep('index')}
+          onLogin={hanleLoginSuccess}
+        ></TonWalletLoginWidget>
       )}
       {step === 'email' && (
-        <EmailLoginWidget onBack={() => setStep('index')} onLogin={hanleLoginSuccess} source={source} />
+        <EmailLoginWidget email={email} onBack={() => setStep('index')} onLogin={hanleLoginSuccess} />
       )}
       {step === 'index' && (
         <SigninIndex
-          onSelectEmail={handleSelectEmail}
+          onEmailConfirm={handleSelectEmail}
           onSelectWallet={handleSelectWallet}
-          onSelectMoreWallets={onSelectMoreWallets}
+          onSelectMoreWallets={()=>{setStep('all-wallet')}}
           onSelectTonConnect={onSelectTonConnect}
           config={{
             showEmailSignIn: true,
@@ -59,6 +74,10 @@ export function CodattaSignin(props: {
             showTonConnect: true,
           }}
         ></SigninIndex>
+      )}
+      {step === 'all-wallet' && (<WalletList onBack={() => setStep('index')}
+        onSelectWallet={handleSelectWallet}
+      ></WalletList>
       )}
     </AnimateContainer>
   )

@@ -26,7 +26,7 @@ function InstallOption(props: { icon: string; title: string; link: string }) {
   )
 }
 
-function getStoreLinks(wallet: WalletConfig) {
+function getStoreLinks(wallet: WalletConfig['getWallet']) {
   const links = {
     appStoreLink: '',
     playStoreLink: '',
@@ -36,27 +36,27 @@ function getStoreLinks(wallet: WalletConfig) {
     edgeStoreLink: '',
   }
 
-  if (wallet.app_store_id) {
+  if (wallet?.app_store_id) {
     links.appStoreLink = `${AppStoreLinkBase}${wallet.app_store_id}`
   }
 
-  if (wallet.play_store_id) {
+  if (wallet?.play_store_id) {
     links.playStoreLink = `${PlayStoreLinkBase}${wallet.play_store_id}`
   }
 
-  if (wallet.chrome_store_id) {
+  if (wallet?.chrome_store_id) {
     links.chromeStoreLink = `${ChromeStoreLinkBase}${wallet.chrome_store_id}`
   }
 
-  if (wallet.brave_store_id) {
+  if (wallet?.brave_store_id) {
     links.braveStoreLink = `${BraveStoreLinkBase}${wallet.brave_store_id}`
   }
 
-  if (wallet.firefox_addon_id) {
+  if (wallet?.firefox_addon_id) {
     links.firefoxStoreLink = `${FirefoxStoreLinkBase}${wallet.firefox_addon_id}`
   }
 
-  if (wallet.edge_addon_id) {
+  if (wallet?.edge_addon_id) {
     links.edgeStoreLink = `${EdgeStoreLinkBase}${wallet.edge_addon_id}`
   }
   return links
@@ -65,13 +65,13 @@ function getStoreLinks(wallet: WalletConfig) {
 export default function GetWallet(props: { wallet: WalletItem }) {
   const { wallet } = props
 
-  const config = wallet.config
+  const config = wallet.config?.getWallet
   const links = getStoreLinks(config!)
 
   return (
     <div className="xc-flex xc-flex-col xc-items-center">
-      <img className="xc-rounded-md xc-mb-2 xc-h-24 xc-w-24" src={wallet.info.image} alt="" />
-      <p className="xc-text-lg xc-font-bold">Install {wallet.info.name} to connect</p>
+      <img className="xc-rounded-md xc-mb-2 xc-h-12 xc-w-12" src={wallet.config?.image} alt="" />
+      <p className="xc-text-lg xc-font-bold">Install {wallet.config?.name} to connect</p>
       <p className="xc-mb-6 xc-text-sm xc-text-gray-500">Select from your preferred options below:</p>
       <div className="xc-grid xc-w-full xc-grid-cols-1 xc-gap-3">
         {config?.chrome_store_id && (

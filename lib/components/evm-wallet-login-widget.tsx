@@ -4,28 +4,43 @@ import TransitionEffect from './transition-effect'
 import WalletQr from './wallet-qr'
 import WalletConnect from './wallet-connect'
 import GetWallet from './get-wallet'
-// import accountApi from '@/api/account.api'
 import { WalletItem } from '../types/wallet-item.class'
+import accountApi, { ILoginResponse } from '../api/account.api'
+import { useCodattaConnectContext } from '@/codatta-signin-context-provider'
 
 export default function WalletLogin(props: {
   wallet: WalletItem
-  onLogin: (token: string, uid: string, new_user: boolean) => void
+  onLogin: (res: ILoginResponse) => void
   onBack: () => void
-  source: string
 }) {
   const { wallet } = props
-  const [step, setStep] = useState(wallet?.state?.detected ? 'connect' : 'qr')
+  const [step, setStep] = useState(wallet.installed ? 'connect' : 'qr')
+  const {config} = useCodattaConnectContext()
 
-  async function handleSignFinish(params: {
+  async function handleSignFinish(wallet: WalletItem, params: {
     message: string
     nonce: string
     signature: string
-    address: string
     wallet_name: string
   }) {
-    console.log('handleSignFinish', params)
-    // const res = await accountApi.walletLogin(null, null, params, source)
-    // await onLogin(res.token, res.user_info?.user_id, !!res.user_info?.new_user)
+    const res = await accountApi.walletLogin({
+      account_type: 'block_chain',
+      account_enum: 'C',
+      connector: 'codatta_wallet',
+      inviter_code: config.inviderCode,
+      wallet_name: wallet.config?.name || wallet.key,
+      address: await wallet.getAddress(),
+      chain: (await wallet.getChain()).toString(),
+      nonce: params.nonce,
+      signature: params.signature,
+      message: params.message,
+      source: {
+        device: config.device,
+        channel: config.channel,
+        app: config.app
+      }
+    })
+    await props.onLogin(res.data)
   }
 
   return (

@@ -1,123 +1,154 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import WalletDetect from './components/wallet-detect'
 import { WalletBook } from './constant/wallet-book'
-import { WalletInfo, WalletItem } from './types/wallet-item.class'
-import LastUsedDetect, { LastUsedInfo } from './components/last-used-detect'
+import { WalletItem } from './types/wallet-item.class'
+import UniversalProvider, { UniversalProviderOpts } from '@walletconnect/universal-provider'
+import { EIP6963Detect } from './utils/eip6963-detect'
+import { createCoinbaseWalletSDK } from '@coinbase/wallet-sdk'
+import accountApi, { TDeviceType } from './api/account.api'
 
-interface CodattaSigninContext {
-  featuredWallets: WalletItem[]
-  installedWallets: WalletItem[]
-  lastUsedWallet: WalletItem | null
-  saveLastUsedInfo: (info: LastUsedInfo, wallet?: WalletItem) => void
-  getLastUsedInfo: () => LastUsedInfo | null
+const walletConnectConfig: UniversalProviderOpts = {
+  projectId: '7a4434fefbcc9af474fb5c995e47d286',
+  metadata: {
+    name: 'codatta',
+    description: 'codatta',
+    url: 'https://codatta.io/',
+    icons: ['https://avatars.githubusercontent.com/u/171659315'],
+  },
 }
 
-const codattaSigninContext = createContext<CodattaSigninContext>({
-  lastUsedWallet: null,
-  featuredWallets: [],
-  installedWallets: [],
-  saveLastUsedInfo: () => {},
-  getLastUsedInfo: () => null,
+export const coinbaseWallet = createCoinbaseWalletSDK({
+  appName: 'codatta',
+  appLogoUrl: 'https://avatars.githubusercontent.com/u/171659315'
 })
 
-export function useCodattaSigninContext() {
-  return useContext(codattaSigninContext)
+interface CodattaConnectConfig {
+  apiBaseUrl?: string,
+  channel: string,
+  device: TDeviceType
+  app: string,
+  inviderCode: string,
+  relateInfo?: Object
 }
 
-export function CodattaSigninContextProvider({ children }: any) {
-  const [lastUsedWallet, setLastUsedWallet] = useState<WalletItem>()
+interface CodattaConnectContext {
+  initialized: boolean
+  wallets: WalletItem[]
+  featuredWallets: WalletItem[]
+  lastUsedWallet: WalletItem | null
+  saveLastUsedWallet: (wallet: WalletItem) => void
+  config: CodattaConnectConfig,
+}
+
+const CodattaSigninContext = createContext<CodattaConnectContext>({
+  saveLastUsedWallet: () => { },
+  lastUsedWallet: null,
+  wallets: [],
+  initialized: false,
+  featuredWallets: [],
+  config: {
+    channel: '',
+    device: 'WEB',
+    app: '',
+    inviderCode: '',
+    relateInfo: {}
+  },
+})
+
+export function useCodattaConnectContext() {
+  return useContext(CodattaSigninContext)
+}
+
+interface CodattaConnectContextProviderProps {
+  children: React.ReactNode
+  config: CodattaConnectConfig
+}
+
+export function CodattaConnectContextProvider(props:CodattaConnectContextProviderProps) {
+  const [wallets, setWallets] = useState<WalletItem[]>([])
   const [featuredWallets, setFeaturedWallets] = useState<WalletItem[]>([])
-  const [installedWallets, setInstalledWallets] = useState<WalletItem[]>([])
-  console.log('CodattaSigninContextProvider init!')
+  const [lastUsedWallet, setLastUsedWallet] = useState<WalletItem | null>(null)
+  const [initialized, setInitialized] = useState<boolean>(false)
+  const [config] = useState<CodattaConnectConfig>(props.config)
 
-  function getLastUsedInfo() {
-    try {
-      const lastUsed = localStorage.getItem('codatta-connect-last-used')
-      if (lastUsed) return JSON.parse(lastUsed) as LastUsedInfo
-    } catch (err: any) {
-      console.log(err)
-    }
-    return null
+  const saveLastUsedWallet = (wallet: WalletItem) => {
+    console.log('saveLastUsedWallet', wallet)
   }
 
-  const saveLastUsedInfo = (info: LastUsedInfo, wallet?: WalletItem) => {
-    localStorage.setItem('codatta-connect-last-used', JSON.stringify(info))
-    wallet && setLastUsedWallet(wallet)
-  }
-
-  async function handleWalletDetected(wallets: any[]) {
-    const lastUsedInfo = getLastUsedInfo()
-
-    const featuredWallets = WalletBook.map((item) => {
-      const walletInfo: WalletInfo = {
-        key: item.key,
-        name: item.name,
-        image: item.image,
-        rdns: item.rdns,
-      }
-
-      const detected = wallets.find((wallet) => wallet.info?.rdns === item.rdns)
-      const lastUsed = item.name === lastUsedInfo?.walletName
-      const provider = detected ? detected.provider : null
-      const wallet = new WalletItem(walletInfo, item)
-      wallet.updateState({ detected: !!detected, lastUsed })
-      wallet.setProvider(provider)
-      return wallet
-    })
-
-    const existRdns = new Set()
-    const extraInstalledWallets = wallets.filter((wallet) => {
-      console.log(wallet, featuredWallets)
-
-      const extraInstalled = !featuredWallets.find((item) => item.info.rdns === wallet.info?.rdns)
-      if (existRdns.has(wallet.info?.rdns)) {
-        return false
-      } else {
-        existRdns.add(wallet.info?.rdns)
-        return extraInstalled
-      }
-    })
-
-    const extraWallets = extraInstalledWallets.map((item) => {
-      const lastUsed = item.info.name === lastUsedInfo?.walletName
-      const walletInfo: WalletInfo = {
-        key: item.info.key,
-        name: item.info.name,
-        image: item.info.icon,
-        rdns: item.info.rdns,
-      }
-      const wallet = new WalletItem(walletInfo, item)
-      wallet.updateState({ detected: true, lastUsed })
-      wallet.setProvider(item.provider)
-      return wallet
-    })
-
-    setInstalledWallets(extraWallets)
+  function sortWallet(wallets: WalletItem[]) {
+    const featuredWallets = wallets.filter((item) => item.featured || item.installed)
+    const restWallets = wallets.filter((item) => !item.featured && !item.installed)
+    const sortedWallets = [...featuredWallets, ...restWallets]
+    setWallets(sortedWallets)
     setFeaturedWallets(featuredWallets)
   }
 
-  useEffect(() => {
-    console.log(featuredWallets, installedWallets)
-  }, [featuredWallets, installedWallets])
+  async function init() {
+    const wallets: WalletItem[] = []
+    const walletMap = new Map<string, WalletItem>()
 
-  function handleLastUsedWallet(wallet: WalletItem) {
-    console.log(wallet, 'handleLastUsedWallet')
-    setLastUsedWallet(wallet)
+    // create WalletItem list by wallet-book
+    // create wallet map for future use
+    WalletBook.forEach((item) => {
+      const walletItem = new WalletItem(item)
+      if (item.name === 'Coinbase Wallet') {
+        walletItem.EIP6963Detected({
+          info: { name: 'Coinbase Wallet', uuid: 'coinbase', icon: item.image, rdns: 'coinbase' },
+          provider: coinbaseWallet.getProvider() as any
+        })
+      }
+      walletMap.set(walletItem.key, walletItem)
+      wallets.push(walletItem)
+    })
+
+    // detect EIP6963 providers, and update WalletItem list
+    const eip6963Providers = await EIP6963Detect()
+    eip6963Providers.forEach((detail) => {
+      const walletItem = walletMap.get(detail.info.name)
+      if (walletItem) {
+        walletItem.EIP6963Detected(detail)
+      } else {
+        const walletItem = new WalletItem(detail)
+        walletMap.set(walletItem.key, walletItem)
+        wallets.push(walletItem)
+      }
+    })
+
+    // handle last used wallet info and restore walletconnect UniveralProvider
+    const lastUsedInfo = JSON.parse(localStorage.getItem('cn-last-used-info') || '{}')
+    const lastUsedWallet = walletMap.get(lastUsedInfo.key)
+    if (lastUsedWallet) {
+      lastUsedWallet.lastUsed = true
+      if (lastUsedInfo.provider === 'UniversalProvider') {
+        const provider = await UniversalProvider.init(walletConnectConfig)
+        if (provider.session) lastUsedWallet.setUniversalProvider(provider)
+      }
+      setLastUsedWallet(lastUsedWallet)
+    }
+
+    // sort wallets by featured, installed, and rest
+    sortWallet(wallets)
+
+    // set initialized to true
+    setInitialized(true)
   }
 
+  useEffect(() => {
+    init()
+    accountApi.setApiBase(config.apiBaseUrl)
+  }, [])
+
   return (
-    <codattaSigninContext.Provider
+    <CodattaSigninContext.Provider
       value={{
-        lastUsedWallet : lastUsedWallet || null,
-        installedWallets,
+        saveLastUsedWallet,
+        wallets,
+        initialized,
+        lastUsedWallet,
         featuredWallets,
-        saveLastUsedInfo,
-        getLastUsedInfo,
+        config,
       }}
     >
-      <WalletDetect onFinish={handleWalletDetected}></WalletDetect>
-      <LastUsedDetect onFinish={handleLastUsedWallet}></LastUsedDetect>
-      {children}
-    </codattaSigninContext.Provider>
+      {props.children}
+    </CodattaSigninContext.Provider>
   )
 }
