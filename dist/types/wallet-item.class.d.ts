@@ -11,6 +11,7 @@ export declare class WalletItem {
     private _fatured;
     private _installed;
     lastUsed: boolean;
+    get address(): `0x${string}` | null;
     get connected(): boolean;
     get featured(): boolean;
     get key(): string;

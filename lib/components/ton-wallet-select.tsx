@@ -51,13 +51,13 @@ export default function TonWalletSelect(props: {
   return (
     <TransitionEffect>
       <div className="xc-mb-6">
-        <ControlHead title={'Log in to codatta'} onBack={props.onBack} />
+        <ControlHead title={'Select wallet'} onBack={props.onBack} />
       </div>
-      <div className="xc-mb-6 xc-flex xc-gap-3 xc-px-4 xc-py-2 xc-border xc-rounded-xl xc-w-full xc-overflow-hidden xc-items-center">
+      <div className="xc-mb-6 xc-flex xc-gap-3 xc-px-4 xc-py-2 xc-border xc-rounded-xl xc-w-full xc-overflow-hidden xc-items-center xc-border-opacity-15 xc-border-white focus-within:xc-border-opacity-40">
         <Search className="xc-shrink-0 xc-opacity-50"></Search>
-        <input type="text" className="xc-flex-1 xc-appearance-none xc-outline-none" onInput={handleSearch} />
+        <input type="text" className="xc-flex-1 xc-bg-transparent xc-appearance-none xc-outline-none" placeholder='Search wallet' onInput={handleSearch} />
       </div>
-      <div className='xc-mb-4 xc-flex xc-h-[309px] xc-flex-col xc-gap-4 xc-overflow-scroll'>
+      <div className='xc-mb-4 xc-flex xc-h-[309px] xc-flex-col xc-gap-4 xc-overflow-scroll no-scrollbar'>
         {walletList?.map(wallet => (
           <TonWalletOption key={wallet.name} wallet={wallet} onClick={handleSelectWallet}></TonWalletOption>
         ))}

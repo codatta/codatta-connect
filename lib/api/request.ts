@@ -1,7 +1,6 @@
 import axios, { AxiosError, AxiosResponse } from 'axios'
 
 const request = axios.create({
-  baseURL: '/api/v2',
   timeout: 60000,
   headers: {
     'Content-Type': 'application/json'

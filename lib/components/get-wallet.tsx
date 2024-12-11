@@ -2,7 +2,7 @@ import { ArrowRight } from 'lucide-react'
 import { WalletItem } from '../types/wallet-item.class'
 import { WalletConfig } from '../constant/wallet-book'
 
-const walletIconsImage = 'https://s.xny.ai/xny-connect/wallet-icons.svg'
+const walletIconsImage = 'https://static.codatta.io/codatta-connect/wallet-icons.svg'
 
 const AppStoreLinkBase = 'https://itunes.apple.com/app/'
 const PlayStoreLinkBase = 'https://play.google.com/store/apps/details?id='
@@ -17,7 +17,7 @@ function InstallOption(props: { icon: string; title: string; link: string }) {
     <a
       href={link}
       target="_blank"
-      className="xc-flex xc-w-full xc-cursor-pointer xc-items-center xc-gap-2 xc-rounded-full xc-border xc-border-gray-100 xc-px-6 xc-py-3 xc-transition-all xc-hover:bg-white xc-hover:bg-opacity-5"
+      className="xc-flex xc-w-full xc-cursor-pointer xc-items-center xc-gap-2 xc-rounded-full xc-border xc-border-white xc-border-opacity-15 xc-px-6 xc-py-3 xc-transition-all xc-hover:bg-white xc-hover:bg-opacity-5"
     >
       <img className="xc-rounded-1 xc-h-6 xc-w-6" src={icon} alt="" />
       {title}
@@ -84,7 +84,7 @@ export default function GetWallet(props: { wallet: WalletItem }) {
         {config?.app_store_id && (
           <InstallOption
             link={links.appStoreLink}
-            icon={`${walletIconsImage}#apple`}
+            icon={`${walletIconsImage}#apple-dark`}
             title="Apple App Store"
           ></InstallOption>
         )}

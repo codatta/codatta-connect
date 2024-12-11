@@ -14,6 +14,10 @@ export class WalletItem {
   private _installed: boolean = false
   public lastUsed: boolean = false
 
+  public get address() {
+    return this._address
+  }
+
   public get connected() {
     return this._connected
   }
@@ -115,20 +119,19 @@ export class WalletItem {
 
   async getAddress() {
     const addresses = await this.client?.getAddresses()
-    if (!addresses || !addresses.length) throw new Error('get address failed')
+    if (!addresses) throw new Error('get address failed')
     return addresses[0]
   }
 
   async getChain() {
     const chain = await this.client?.getChainId()
-    console.log('wallet client', this.client)
     if (!chain) throw new Error('get chain failed')
     return chain
   }
 
   async signMessage(message: string) {
-    if (!this._address || !this._connected) return
-    const signature = await this.client?.signMessage({ message, account: this._address })
+    const address = await this.getAddress()
+    const signature = await this.client?.signMessage({ message, account: address })
     return signature
   }
 

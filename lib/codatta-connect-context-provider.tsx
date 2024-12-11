@@ -4,7 +4,7 @@ import { WalletItem } from './types/wallet-item.class'
 import UniversalProvider, { UniversalProviderOpts } from '@walletconnect/universal-provider'
 import { EIP6963Detect } from './utils/eip6963-detect'
 import { createCoinbaseWalletSDK } from '@coinbase/wallet-sdk'
-import accountApi, { TDeviceType } from './api/account.api'
+import accountApi from './api/account.api'
 
 const walletConnectConfig: UniversalProviderOpts = {
   projectId: '7a4434fefbcc9af474fb5c995e47d286',
@@ -21,14 +21,14 @@ export const coinbaseWallet = createCoinbaseWalletSDK({
   appLogoUrl: 'https://avatars.githubusercontent.com/u/171659315'
 })
 
-interface CodattaConnectConfig {
-  apiBaseUrl?: string,
-  channel: string,
-  device: TDeviceType
-  app: string,
-  inviderCode: string,
-  relateInfo?: Object
-}
+// interface CodattaConnectConfig {
+//   apiBaseUrl?: string,
+//   channel: string,
+//   device: TDeviceType
+//   app: string,
+//   inviderCode: string,
+//   relateInfo?: Object
+// }
 
 interface CodattaConnectContext {
   initialized: boolean
@@ -36,7 +36,6 @@ interface CodattaConnectContext {
   featuredWallets: WalletItem[]
   lastUsedWallet: WalletItem | null
   saveLastUsedWallet: (wallet: WalletItem) => void
-  config: CodattaConnectConfig,
 }
 
 const CodattaSigninContext = createContext<CodattaConnectContext>({
@@ -44,14 +43,7 @@ const CodattaSigninContext = createContext<CodattaConnectContext>({
   lastUsedWallet: null,
   wallets: [],
   initialized: false,
-  featuredWallets: [],
-  config: {
-    channel: '',
-    device: 'WEB',
-    app: '',
-    inviderCode: '',
-    relateInfo: {}
-  },
+  featuredWallets: []
 })
 
 export function useCodattaConnectContext() {
@@ -60,15 +52,15 @@ export function useCodattaConnectContext() {
 
 interface CodattaConnectContextProviderProps {
   children: React.ReactNode
-  config: CodattaConnectConfig
+  apiBaseUrl?: string
 }
 
-export function CodattaConnectContextProvider(props:CodattaConnectContextProviderProps) {
+export function CodattaConnectContextProvider(props: CodattaConnectContextProviderProps) {
+  const { apiBaseUrl } = props
   const [wallets, setWallets] = useState<WalletItem[]>([])
   const [featuredWallets, setFeaturedWallets] = useState<WalletItem[]>([])
   const [lastUsedWallet, setLastUsedWallet] = useState<WalletItem | null>(null)
   const [initialized, setInitialized] = useState<boolean>(false)
-  const [config] = useState<CodattaConnectConfig>(props.config)
 
   const saveLastUsedWallet = (wallet: WalletItem) => {
     console.log('saveLastUsedWallet', wallet)
@@ -86,8 +78,6 @@ export function CodattaConnectContextProvider(props:CodattaConnectContextProvide
     const wallets: WalletItem[] = []
     const walletMap = new Map<string, WalletItem>()
 
-    // create WalletItem list by wallet-book
-    // create wallet map for future use
     WalletBook.forEach((item) => {
       const walletItem = new WalletItem(item)
       if (item.name === 'Coinbase Wallet') {
@@ -114,15 +104,19 @@ export function CodattaConnectContextProvider(props:CodattaConnectContextProvide
     })
 
     // handle last used wallet info and restore walletconnect UniveralProvider
-    const lastUsedInfo = JSON.parse(localStorage.getItem('cn-last-used-info') || '{}')
-    const lastUsedWallet = walletMap.get(lastUsedInfo.key)
-    if (lastUsedWallet) {
-      lastUsedWallet.lastUsed = true
-      if (lastUsedInfo.provider === 'UniversalProvider') {
-        const provider = await UniversalProvider.init(walletConnectConfig)
-        if (provider.session) lastUsedWallet.setUniversalProvider(provider)
+    try {
+      const lastUsedInfo = JSON.parse(localStorage.getItem('xn-last-used-info') || '{}')
+      const lastUsedWallet = walletMap.get(lastUsedInfo.key)
+      if (lastUsedWallet) {
+        lastUsedWallet.lastUsed = true
+        if (lastUsedInfo.provider === 'UniversalProvider') {
+          const provider = await UniversalProvider.init(walletConnectConfig)
+          if (provider.session) lastUsedWallet.setUniversalProvider(provider)
+          }
+        setLastUsedWallet(lastUsedWallet)
       }
-      setLastUsedWallet(lastUsedWallet)
+    } catch (err) {
+      console.log(err)
     }
 
     // sort wallets by featured, installed, and rest
@@ -134,7 +128,7 @@ export function CodattaConnectContextProvider(props:CodattaConnectContextProvide
 
   useEffect(() => {
     init()
-    accountApi.setApiBase(config.apiBaseUrl)
+    accountApi.setApiBase(apiBaseUrl)
   }, [])
 
   return (
@@ -144,8 +138,7 @@ export function CodattaConnectContextProvider(props:CodattaConnectContextProvide
         wallets,
         initialized,
         lastUsedWallet,
-        featuredWallets,
-        config,
+        featuredWallets
       }}
     >
       {props.children}

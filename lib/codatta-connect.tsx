@@ -52,7 +52,6 @@ export default function CodattaConnect(props: {
             title: 'Connect Wallet',
             showEmailSignIn: false,
             showFeaturedWallets: true,
-            showInstalledWallets: true,
             showMoreWallets: true,
             showTonConnect: false,
           }}

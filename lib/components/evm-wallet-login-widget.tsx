@@ -6,7 +6,7 @@ import WalletConnect from './wallet-connect'
 import GetWallet from './get-wallet'
 import { WalletItem } from '../types/wallet-item.class'
 import accountApi, { ILoginResponse } from '../api/account.api'
-import { useCodattaConnectContext } from '@/codatta-signin-context-provider'
+import { useCodattaSigninContext } from '@/providers/codatta-signin-context-provider'
 
 export default function WalletLogin(props: {
   wallet: WalletItem
@@ -15,7 +15,8 @@ export default function WalletLogin(props: {
 }) {
   const { wallet } = props
   const [step, setStep] = useState(wallet.installed ? 'connect' : 'qr')
-  const {config} = useCodattaConnectContext()
+  const config = useCodattaSigninContext()
+
 
   async function handleSignFinish(wallet: WalletItem, params: {
     message: string
@@ -27,7 +28,7 @@ export default function WalletLogin(props: {
       account_type: 'block_chain',
       account_enum: 'C',
       connector: 'codatta_wallet',
-      inviter_code: config.inviderCode,
+      inviter_code: config.inviterCode,
       wallet_name: wallet.config?.name || wallet.key,
       address: await wallet.getAddress(),
       chain: (await wallet.getChain()).toString(),

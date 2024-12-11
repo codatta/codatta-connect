@@ -3,7 +3,7 @@ import { createSiweMessage } from 'viem/siwe'
 import accountApi from '../api/account.api'
 import { Loader2 } from 'lucide-react'
 import { WalletItem } from '../types/wallet-item.class'
-import { useCodattaConnectContext } from '../codatta-signin-context-provider'
+import { useCodattaConnectContext } from '../codatta-connect-context-provider'
 
 const CONNECT_GUIDE_MESSAGE = 'Accept connection request in the wallet'
 const MESSAGE_SIGN_GUIDE_MESSAGE = 'Accept sign-in request in your wallet'
@@ -90,8 +90,7 @@ export default function WalletConnect(props: {
         <div className="xc-flex xc-flex-col xc-items-center">
           <p className="xc-text-danger xc-mb-2 xc-text-center">{error}</p>
           <div className='xc-flex xc-gap-2'>
-            {/* <button className="xc-rounded-full xc-bg-gray-100 xc-px-6 xc-py-1" onClick={handleShowQrCode}>Show QR Code</button> */}
-            <button className="xc-rounded-full xc-bg-gray-100 xc-px-6 xc-py-1" onClick={initWalletConnect}>
+            <button className="xc-rounded-full xc-bg-white xc-bg-opacity-10 xc-px-6 xc-py-1" onClick={initWalletConnect}>
               Retry
             </button>
           </div>

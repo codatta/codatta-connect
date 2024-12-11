@@ -1,5 +1,5 @@
 export type ChainType = 'evm' | 'sol' | 'ton' | 'btc'
-const walletIconsImage = 'https://s.xny.ai/xny-connect/wallet-icons.svg'
+const walletIconsImage = 'https://static.codatta.io/codatta-connect/wallet-icons.svg?v=2'
 
 export interface WalletConfig {
   name: string

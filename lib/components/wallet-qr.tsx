@@ -4,7 +4,7 @@ import { UniversalProvider, UniversalProviderOpts } from '@walletconnect/univers
 import { Link2, Download, Loader2, CheckCircle } from 'lucide-react'
 import { createSiweMessage } from 'viem/siwe'
 import { WalletItem } from '../types/wallet-item.class'
-import { useCodattaConnectContext } from '../codatta-signin-context-provider'
+import { useCodattaConnectContext } from '../codatta-connect-context-provider'
 import accountApi from '../api/account.api'
 
 const walletConnectConfig:UniversalProviderOpts = {
@@ -22,10 +22,8 @@ const walletProviderConnectConfig = {
     eip155: {
       methods: [
         'eth_sendTransaction',
-        'eth_signTransaction',
         'eth_sign',
         'personal_sign',
-        'eth_signTypedData',
         'wallet_addEthereumChain',
         'wallet_switchEthereumChain',
       ],
@@ -98,7 +96,6 @@ export default function WalletQr(props: {
       const session = await provider.connect(walletProviderConnectConfig)
       if (!session) throw new Error('Walletconnect init failed')
       const newWallet = new WalletItem(provider)
-      saveLastUsedWallet(newWallet)
       setImage(newWallet.config?.image || wallet.config?.image)
       const address = await newWallet.getAddress()
       const nonce = await accountApi.getNonce({account_type: 'block_chain'})
@@ -113,6 +110,7 @@ export default function WalletQr(props: {
         address,
         wallet_name: newWallet.config?.name || wallet.config?.name || ''
       })
+      saveLastUsedWallet(newWallet)
     } catch (err: any) {
       setError(err.details || err.message)
       
@@ -125,7 +123,7 @@ export default function WalletQr(props: {
       height: 264,
       margin: 0,
       type: 'svg',
-      image: wallet.config?.image,
+      // image: wallet.config?.image,
       qrOptions: {
         errorCorrectionLevel: 'M',
       },
@@ -216,7 +214,7 @@ export default function WalletQr(props: {
         {error ? (
           <div className="xc-flex xc-flex-col xc-items-center">
             <p className="xc-text-danger xc-mb-2 xc-text-center">{error}</p>
-            <button className="xc-rounded-full xc-bg-gray-100 xc-px-6 xc-py-1" onClick={handleRetry}>
+            <button className="xc-rounded-full xc-bg-white xc-bg-opacity-10 xc-px-6 xc-py-1" onClick={handleRetry}>
               Retry
             </button>
           </div>

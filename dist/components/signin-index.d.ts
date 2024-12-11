@@ -1,5 +1,6 @@
 import { WalletItem } from '../types/wallet-item.class';
 export default function SingInIndex(props: {
+    header?: React.ReactNode;
     onEmailConfirm: (email: string) => void;
     onSelectWallet: (walletOption: WalletItem) => void;
     onSelectMoreWallets: () => void;
@@ -8,7 +9,6 @@ export default function SingInIndex(props: {
         showEmailSignIn?: boolean;
         showTonConnect?: boolean;
         showFeaturedWallets?: boolean;
-        showInstalledWallets?: boolean;
         showMoreWallets?: boolean;
         title?: string;
     };

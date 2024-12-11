@@ -15,14 +15,15 @@ export default function TonWalletConnect(props: {
   connector: TonConnect
   wallet: WalletInfoRemote | WalletInfoInjectable
   onBack: () => void
+  loading: boolean
 }) {
-  const { wallet, connector } = props
+  const { wallet, connector, loading } = props
   const qrCodeContainer = useRef<HTMLDivElement>(null)
   const qrCode = useRef<QRCodeStyling>()
   const [_error, setError] = useState<string>()
   const [nonce, setNonce] = useState<string>()
   const [_guideType, _setGuideType] = useState<'connect' | 'sign' | 'waiting'>('connect')
-  const [loading, setLoading] = useState<boolean>(false)
+  const [qrLoading, setQrLoading] = useState<boolean>(false)
   // const { saveLastUsedWallet } = useCodattaConnectContext()
   const [link, setLink] = useState<string>()
 
@@ -34,8 +35,8 @@ export default function TonWalletConnect(props: {
   }
 
   async function initWalletConnect() {
+    setQrLoading(true)
     try {
-      setLoading(true)
       setError('')
       const nonce = await accountApi.getNonce({ account_type: 'block_chain' })
       if ('universalLink' in wallet && wallet.universalLink) {
@@ -53,7 +54,7 @@ export default function TonWalletConnect(props: {
     } catch (err: any) {
       setError(err.message)
     }
-    setLoading(false)
+    setQrLoading(false)
   }
 
   function initQrCode() {
@@ -125,16 +126,25 @@ export default function TonWalletConnect(props: {
         <ControlHead title={'Log in to codatta'} onBack={props.onBack} />
       </div>
       <div className='xc-text-center xc-mb-6'>
-        <div className="xc-w-[264px] xc-aspect-square xc-mx-auto xc-flex xc-items-center xc-justify-center">
-          <div ref={qrCodeContainer}></div>
-          {loading && <Loader2 className="xc-animate-spin"></Loader2>}
+        <div className="xc-relative xc-mx-auto xc-mb-6 xc-block xc-max-h-[272px] xc-max-w-[272px] xc-rounded-xl xc-bg-white xc-p-1">
+          <div className="xc-aspect-[1/1] xc-flex xc-h-full xc-w-full xc-justify-center" ref={qrCodeContainer}></div>
+          <div className="xc-absolute xc-left-0 xc-top-0 xc-flex xc-h-full xc-w-full xc-items-center xc-justify-center">
+            {qrLoading ? (
+              <Loader2 className="xc-h-6 xc-w-6 xc-animate-spin xc-text-black" size={20}></Loader2>
+            ) : (
+              <img className="xc-h-10 xc-w-10 xc-rounded-md" src={wallet.imageUrl}></img>
+            )}
+          </div>
         </div>
         <p className='xc-text-center'>Scan the QR code below with your phone's camera. </p>
       </div>
       <div className='xc-flex xc-justify-center xc-gap-2'>
-        {isWalletInfoCurrentlyInjected(wallet) && <AppButton onClick={handleExtensionConnect}><Globe className="xc-opacity-80"></Globe>Extension</AppButton>}
-        {hashDeepLink && <AppButton onClick={handleDesktopConnect}><Laptop className="xc-opacity-80"></Laptop>Desktop</AppButton>}
-        {hashTgMiniApp && <AppButton onClick={handleTMAConnect}>Telegram Mini App</AppButton>}
+        {loading && <Loader2 className="xc-animate-spin"></Loader2>}
+        {(!qrLoading && !loading) && <>
+          {isWalletInfoCurrentlyInjected(wallet) && <AppButton onClick={handleExtensionConnect}><Globe className="xc-opacity-80"></Globe>Extension</AppButton>}
+          {hashDeepLink && <AppButton onClick={handleDesktopConnect}><Laptop className="xc-opacity-80"></Laptop>Desktop</AppButton>}
+          {hashTgMiniApp && <AppButton onClick={handleTMAConnect}>Telegram Mini App</AppButton>}
+        </>}
       </div>
     </TransitionEffect>
   )
