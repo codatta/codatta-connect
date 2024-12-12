@@ -28,8 +28,6 @@ const walletProviderConnectConfig = {
         'eth_sign',
         'personal_sign',
         'eth_signTypedData',
-        'wallet_addEthereumChain',
-        'wallet_switchEthereumChain',
       ],
       chains: ['eip155:1'],
       events: ['chainChanged', 'accountsChanged', 'disconnect'],

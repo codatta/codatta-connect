@@ -2849,7 +2849,7 @@ function TO(t) {
   return $l(`0x${e}`);
 }
 async function RO({ hash: t, signature: e }) {
-  const r = ma(t) ? t : qd(t), { secp256k1: n } = await import("./secp256k1-C438sQmV.js");
+  const r = ma(t) ? t : qd(t), { secp256k1: n } = await import("./secp256k1-Boru95Qr.js");
   return `0x${(() => {
     if (typeof e == "object" && "r" in e && "s" in e) {
       const { r: l, s: d, v: p, yParity: w } = e, P = Number(w ?? p), A = M2(P);
@@ -39723,9 +39723,7 @@ const kne = /^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}(:[0-
         "eth_signTransaction",
         "eth_sign",
         "personal_sign",
-        "eth_signTypedData",
-        "wallet_addEthereumChain",
-        "wallet_switchEthereumChain"
+        "eth_signTypedData"
       ],
       chains: ["eip155:1"],
       events: ["chainChanged", "accountsChanged", "disconnect"],
