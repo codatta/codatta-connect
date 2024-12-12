@@ -45,7 +45,7 @@ export default function WalletList(props: {
 
   return <TransitionEffect>
     <div className="xc-mb-6">
-      <ControlHead title={'Log in to codatta'} onBack={props.onBack} />
+      <ControlHead title={'Select wallet'} onBack={props.onBack} />
     </div>
     <div className="xc-mb-6 xc-flex xc-gap-3 xc-px-4 xc-py-2 xc-border xc-rounded-xl xc-w-full xc-overflow-hidden xc-items-center xc-border-opacity-15 xc-border-white focus-within:xc-border-opacity-40">
       <Search className="xc-shrink-0 xc-opacity-50"></Search>

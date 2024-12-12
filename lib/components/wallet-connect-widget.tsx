@@ -21,7 +21,7 @@ export default function WalletConnectWidget(props: {
   return (
     <TransitionEffect>
       <div className="mb-6">
-        <ControlHead title={'Log in to codatta'} onBack={props.onBack} />
+        <ControlHead title={'Connect wallet'} onBack={props.onBack} />
       </div>
       {step === 'qr' && (
         <WalletQr

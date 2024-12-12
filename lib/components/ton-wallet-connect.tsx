@@ -123,7 +123,7 @@ export default function TonWalletConnect(props: {
 
     <TransitionEffect>
       <div className="xc-mb-6">
-        <ControlHead title={'Log in to codatta'} onBack={props.onBack} />
+        <ControlHead title={'Connect wallet'} onBack={props.onBack} />
       </div>
       <div className='xc-text-center xc-mb-6'>
         <div className="xc-relative xc-mx-auto xc-mb-6 xc-block xc-max-h-[272px] xc-max-w-[272px] xc-rounded-xl xc-bg-white xc-p-1">

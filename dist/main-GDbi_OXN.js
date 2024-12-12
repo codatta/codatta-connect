@@ -2849,7 +2849,7 @@ function TO(t) {
   return $l(`0x${e}`);
 }
 async function RO({ hash: t, signature: e }) {
-  const r = ma(t) ? t : qd(t), { secp256k1: n } = await import("./secp256k1-Boru95Qr.js");
+  const r = ma(t) ? t : qd(t), { secp256k1: n } = await import("./secp256k1-D3zK91Tb.js");
   return `0x${(() => {
     if (typeof e == "object" && "r" in e && "s" in e) {
       const { r: l, s: d, v: p, yParity: w } = e, P = Number(w ?? p), A = M2(P);
@@ -40053,7 +40053,7 @@ function nie(t) {
     await t.onLogin(u.data);
   }
   return /* @__PURE__ */ me.jsxs(Ac, { children: [
-    /* @__PURE__ */ me.jsx("div", { className: "xc-mb-6", children: /* @__PURE__ */ me.jsx(uh, { title: "Log in to codatta", onBack: t.onBack }) }),
+    /* @__PURE__ */ me.jsx("div", { className: "xc-mb-6", children: /* @__PURE__ */ me.jsx(uh, { title: "Connect wallet", onBack: t.onBack }) }),
     r === "qr" && /* @__PURE__ */ me.jsx(
       Hne,
       {
@@ -42992,7 +42992,7 @@ function tse(t) {
   return Xn(() => {
     $(), F();
   }, []), /* @__PURE__ */ me.jsxs(Ac, { children: [
-    /* @__PURE__ */ me.jsx("div", { className: "xc-mb-6", children: /* @__PURE__ */ me.jsx(uh, { title: "Log in to codatta", onBack: t.onBack }) }),
+    /* @__PURE__ */ me.jsx("div", { className: "xc-mb-6", children: /* @__PURE__ */ me.jsx(uh, { title: "Connect wallet", onBack: t.onBack }) }),
     /* @__PURE__ */ me.jsxs("div", { className: "xc-text-center xc-mb-6", children: [
       /* @__PURE__ */ me.jsxs("div", { className: "xc-relative xc-mx-auto xc-mb-6 xc-block xc-max-h-[272px] xc-max-w-[272px] xc-rounded-xl xc-bg-white xc-p-1", children: [
         /* @__PURE__ */ me.jsx("div", { className: "xc-aspect-[1/1] xc-flex xc-h-full xc-w-full xc-justify-center", ref: i }),
@@ -43124,7 +43124,7 @@ function sse(t) {
     n(a.target.value);
   }
   return /* @__PURE__ */ me.jsxs(Ac, { children: [
-    /* @__PURE__ */ me.jsx("div", { className: "xc-mb-6", children: /* @__PURE__ */ me.jsx(uh, { title: "Log in to codatta", onBack: t.onBack }) }),
+    /* @__PURE__ */ me.jsx("div", { className: "xc-mb-6", children: /* @__PURE__ */ me.jsx(uh, { title: "Select wallet", onBack: t.onBack }) }),
     /* @__PURE__ */ me.jsxs("div", { className: "xc-mb-6 xc-flex xc-gap-3 xc-px-4 xc-py-2 xc-border xc-rounded-xl xc-w-full xc-overflow-hidden xc-items-center xc-border-opacity-15 xc-border-white focus-within:xc-border-opacity-40", children: [
       /* @__PURE__ */ me.jsx(WS, { className: "xc-shrink-0 xc-opacity-50" }),
       /* @__PURE__ */ me.jsx("input", { type: "text", className: "xc-flex-1 xc-bg-transparent xc-appearance-none xc-outline-none", placeholder: "Search wallet", onInput: o })
