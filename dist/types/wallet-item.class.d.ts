@@ -28,6 +28,6 @@ export declare class WalletItem {
     connect(): Promise<`0x${string}`[]>;
     getAddress(): Promise<`0x${string}`>;
     getChain(): Promise<number>;
-    signMessage(message: string): Promise<`0x${string}` | undefined>;
+    signMessage(message: string, address: `0x${string}`): Promise<`0x${string}` | undefined>;
     disconnect(): Promise<void>;
 }

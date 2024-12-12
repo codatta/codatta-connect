@@ -83,7 +83,7 @@ export const WalletBook: WalletConfig[] = [
     image: `${walletIconsImage}#coinbase`,
   },
   {
-    featured: true,
+    featured: false,
     name: 'GateWallet',
     rdns: 'io.gate.wallet',
     image: `${walletIconsImage}#6e528abf-7a7d-47bd-d84d-481f169b1200`,
@@ -98,25 +98,57 @@ export const WalletBook: WalletConfig[] = [
 
     deep_link: 'https://www.gate.io/mobileapp',
     universal_link: 'https://www.gate.io/mobileapp',
-    desktop_link: 'gtweb3wallet://wc'
   },
   {
     featured: false,
     name: "Onekey",
     rdns: "so.onekey.app.wallet",
     image: `${walletIconsImage}#onekey`,
-
     getWallet: {
-
-      chrome_store_id: "kfndfpljldjblhckmbbhbhbchjhhgghd",
-      brave_store_id: "kfndfpljldjblhckmbbhbhbchjhhgghd",
-      play_store_id: "com.onekey.wallet",
+      chrome_store_id: "jnmbobjmhlngoefaiojfljckilhhlhcj",
+      brave_store_id: "jnmbobjmhlngoefaiojfljckilhhlhcj",
+      play_store_id: "so.onekey.app.wallet",
       app_store_id: "id1609559473",
     },
-
     deep_link: "onekey-wallet://",
     universal_link: "onekey://wc",
-    desktop_link: "onekey-wallet://",
-    webapp_link: "https://app.onekey.so/wc/connect"
+  },
+  {
+    featured: false,
+    name: "Infinity Wallet",
+    image: `${walletIconsImage}#9f259366-0bcd-4817-0af9-f78773e41900`,
+    desktop_link: "infinity://wc",
+  },{
+    name: 'Rabby Wallet',
+    rdns: 'io.rabby',
+    featured: false,
+    image: `${walletIconsImage}#rabby`,
+    getWallet: {
+      chrome_store_id: "acmacodkjbdgmoleebolmdjonilkdbch",
+      brave_store_id: "acmacodkjbdgmoleebolmdjonilkdbch",
+      play_store_id: "com.debank.rabbymobile",
+      app_store_id: "id6474381673",
+    }
+  },{
+    name: 'Binance Web3 Wallet',
+    featured: false,
+    image: `${walletIconsImage}#ebac7b39-688c-41e3-7912-a4fefba74600`,
+    getWallet: {
+      play_store_id: 'com.binance.dev',
+      app_store_id: 'id1436799971',
+    }
+  },
+  {
+    name: 'Rainbow Wallet',
+    rdns: 'me.rainbow',
+    featured: false,
+    image: `${walletIconsImage}#rainbow`,
+    getWallet: {
+      chrome_store_id: "opfgelmcmbiajamepnmloijbpoleiama",
+      edge_addon_id: "cpojfbodiccabbabgimdeohkkpjfpbnf",
+      firefox_addon_id: "rainbow-extension",
+      app_store_id: 'id1457119021',
+      play_store_id: 'me.rainbow'
+    }
   }
 ]

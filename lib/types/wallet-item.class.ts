@@ -129,8 +129,7 @@ export class WalletItem {
     return chain
   }
 
-  async signMessage(message: string) {
-    const address = await this.getAddress()
+  async signMessage(message: string, address:`0x${string}`) {
     const signature = await this.client?.signMessage({ message, account: address })
     return signature
   }

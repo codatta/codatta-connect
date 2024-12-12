@@ -11,6 +11,11 @@ export default function LoginView() {
   }
 
   return (
-      <CodattaSignin onLogin={handleLogin}></CodattaSignin>
+      <CodattaSignin onLogin={handleLogin} config={{
+        channel:'test',
+        device:'WEB',
+        app:'test',
+        inviterCode:''
+      }}></CodattaSignin>
   )
 }

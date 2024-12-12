@@ -48,7 +48,7 @@ export default function WalletConnect(props: {
       }
       const message = getSiweMessage(address[0], nonce)
       setGuideType('sign')
-      const signature = await wallet.signMessage(message)
+      const signature = await wallet.signMessage(message, address[0])
       if (!signature || signature.length === 0) {
         throw new Error('user sign error')
       }

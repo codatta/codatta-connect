@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
 import QRCodeStyling from 'qr-code-styling'
 import { UniversalProvider, UniversalProviderOpts } from '@walletconnect/universal-provider'
-import { Link2, Download, Loader2, CheckCircle } from 'lucide-react'
+import { Link2, Download, Loader2, CheckCircle, Laptop } from 'lucide-react'
 import { createSiweMessage } from 'viem/siwe'
 import { WalletItem } from '../types/wallet-item.class'
 import { useCodattaConnectContext } from '../codatta-connect-context-provider'
 import accountApi from '../api/account.api'
 
+const WALLETCONNECT_PROJECT_ID = '7a4434fefbcc9af474fb5c995e47d286'
+
 const walletConnectConfig:UniversalProviderOpts = {
-  projectId: '7a4434fefbcc9af474fb5c995e47d286',
+  projectId: WALLETCONNECT_PROJECT_ID,
   metadata: {
     name: 'codatta',
     description: 'codatta',
@@ -22,15 +24,17 @@ const walletProviderConnectConfig = {
     eip155: {
       methods: [
         'eth_sendTransaction',
+        'eth_signTransaction',
         'eth_sign',
         'personal_sign',
+        'eth_signTypedData',
         'wallet_addEthereumChain',
         'wallet_switchEthereumChain',
       ],
       chains: ['eip155:1'],
       events: ['chainChanged', 'accountsChanged', 'disconnect'],
       rpcMap: {
-        1: `https://rpc.walletconnect.com?chainId=eip155:1&projectId=${'7a4434fefbcc9af474fb5c995e47d286'}`,
+        1: `https://rpc.walletconnect.com?chainId=eip155:1&projectId=${WALLETCONNECT_PROJECT_ID}`,
       },
     },
   },
@@ -76,8 +80,7 @@ export default function WalletQr(props: {
   async function getWcUri(wallet: WalletItem) {
     setUriLoading(true)
     const provider = await UniversalProvider.init(walletConnectConfig)
-
-    console.log('provider', provider.session)
+    if (provider.session)  await provider.disconnect()
     try {
       setGuideType('scan')
       provider.on('display_uri', (uri:string) => {
@@ -99,9 +102,10 @@ export default function WalletQr(props: {
       setImage(newWallet.config?.image || wallet.config?.image)
       const address = await newWallet.getAddress()
       const nonce = await accountApi.getNonce({account_type: 'block_chain'})
+      console.log('get nonce', nonce)
       const message = getSiweMessage(address, nonce)
       setGuideType('sign')
-      const signature = await newWallet.signMessage(message) as string
+      const signature = await newWallet.signMessage(message, address) as string
       setGuideType('waiting')
       await onSignFinish(newWallet, {
         message,
@@ -112,6 +116,7 @@ export default function WalletQr(props: {
       })
       saveLastUsedWallet(newWallet)
     } catch (err: any) {
+      console.log('err', err)
       setError(err.details || err.message)
       
     }
@@ -172,6 +177,20 @@ export default function WalletQr(props: {
     }, 2500)
   }
 
+  function handleDesktopLink() {
+    const link  = wallet.config?.desktop_link
+    if (!link) return
+    const url = `${link}?uri=${encodeURIComponent(wcUri)}`
+    window.open(url, '_blank')
+  }
+
+  // function handleWebappLink() {
+  //   const link  = wallet.config?.webapp_link
+  //   if (!link) return
+  //   const url = `${link}?uri=${encodeURIComponent(wcUri)}`
+  //   window.open(url, '_blank')
+  // }
+
   return (
     <div>
       <div className="xc-text-center">
@@ -208,6 +227,13 @@ export default function WalletQr(props: {
           onClick={onGetExtension}
         >
           <Download></Download>Get Extension
+        </button>}
+
+        {wallet.config?.desktop_link &&  <button
+          className="xc-rounded-2 xc-flex xc-min-w-[160px] xc-flex-1 xc-shrink-0 xc-items-center xc-justify-center xc-gap-2 xc-rounded-full xc-border xc-py-2 xc-text-sm xc-transition-all xc-hover:bg-white xc-hover:text-black"
+          onClick={handleDesktopLink}
+        >
+          <Laptop></Laptop>Desktop
         </button>}
       </div>
       <div className="xc-text-center">
