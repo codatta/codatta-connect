@@ -40,7 +40,7 @@ export default function SingInIndex(props: {
   }
 }) {
   const [email, setEmail] = useState('')
-  const { featuredWallets } = useCodattaConnectContext()
+  const { featuredWallets, initialized } = useCodattaConnectContext()
   const { onEmailConfirm, onSelectWallet, onSelectMoreWallets, onSelectTonConnect, config } = props
 
   const isEmail = useMemo(() => {
@@ -70,6 +70,8 @@ export default function SingInIndex(props: {
 
   return (
     <TransitionEffect>
+      {initialized && <>
+      
       {props.header || <div className='xc-mb-6 xc-text-xl xc-font-bold'>Log in or sign up</div>}
 
       {config.showEmailSignIn && (
@@ -104,6 +106,7 @@ export default function SingInIndex(props: {
         </div>
         {config.showMoreWallets && <MoreWallets onClick={onSelectMoreWallets} />}
       </div>
+      </>}
     </TransitionEffect>
   )
 }
