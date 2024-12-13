@@ -36,7 +36,6 @@ export default function SingInIndex(props: {
     showTonConnect?: boolean
     showFeaturedWallets?: boolean
     showMoreWallets?: boolean
-    title?: string
   }
 }) {
   const [email, setEmail] = useState('')

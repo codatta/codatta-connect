@@ -2849,7 +2849,7 @@ function TO(t) {
   return $l(`0x${e}`);
 }
 async function RO({ hash: t, signature: e }) {
-  const r = ma(t) ? t : qd(t), { secp256k1: n } = await import("./secp256k1-gyLUxaee.js");
+  const r = ma(t) ? t : qd(t), { secp256k1: n } = await import("./secp256k1-CIRxyeQW.js");
   return `0x${(() => {
     if (typeof e == "object" && "r" in e && "s" in e) {
       const { r: l, s: d, v: p, yParity: x } = e, A = Number(x ?? p), P = M2(A);
@@ -39862,6 +39862,7 @@ function Hne(t) {
       ((Y = r.config) == null ? void 0 : Y.desktop_link) && /* @__PURE__ */ me.jsxs(
         "button",
         {
+          disabled: !s,
           className: "xc-rounded-2 xc-flex xc-min-w-[160px] xc-flex-1 xc-shrink-0 xc-items-center xc-justify-center xc-gap-2 xc-rounded-full xc-border xc-py-2 xc-text-sm xc-transition-all xc-hover:bg-white xc-hover:text-black",
           onClick: W,
           children: [

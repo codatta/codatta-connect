@@ -49,7 +49,6 @@ export default function CodattaConnect(props: {
           onSelectMoreWallets={onSelectMoreWallets}
           onSelectTonConnect={onSelectTonConnect!}
           config={{
-            title: 'Connect Wallet',
             showEmailSignIn: false,
             showFeaturedWallets: true,
             showMoreWallets: true,

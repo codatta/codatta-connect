@@ -228,6 +228,7 @@ export default function WalletQr(props: {
         </button>}
 
         {wallet.config?.desktop_link &&  <button
+          disabled={!wcUri}
           className="xc-rounded-2 xc-flex xc-min-w-[160px] xc-flex-1 xc-shrink-0 xc-items-center xc-justify-center xc-gap-2 xc-rounded-full xc-border xc-py-2 xc-text-sm xc-transition-all xc-hover:bg-white xc-hover:text-black"
           onClick={handleDesktopLink}
         >

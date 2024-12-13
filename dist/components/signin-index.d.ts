@@ -10,6 +10,5 @@ export default function SingInIndex(props: {
         showTonConnect?: boolean;
         showFeaturedWallets?: boolean;
         showMoreWallets?: boolean;
-        title?: string;
     };
 }): import("react/jsx-runtime").JSX.Element;
