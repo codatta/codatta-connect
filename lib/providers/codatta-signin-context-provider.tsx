@@ -6,7 +6,6 @@ export interface CodattaSigninConfig {
   device: TDeviceType
   app: string,
   inviterCode: string,
-  relateInfo?: object
 }
 
 const CodattaSigninContext = createContext<CodattaSigninConfig>({
@@ -14,7 +13,6 @@ const CodattaSigninContext = createContext<CodattaSigninConfig>({
   device: 'WEB',
   app: '',
   inviterCode: '',
-  relateInfo: {} as object
 })
 
 export function useCodattaSigninContext() {
@@ -32,14 +30,12 @@ export function CodattaSinginContextProvider(props: CodattaConnectContextProvide
   const [device, setDevice] = useState<TDeviceType>(config.device)
   const [app, setApp] = useState(config.app)
   const [inviterCode, setInviderCode] = useState(config.inviterCode)
-  const [relateInfo, setRelateInfo] = useState<object | undefined>(config.relateInfo)
 
   useEffect(() => {
     setChannel(config.channel)
     setDevice(config.device)
     setApp(config.app)
     setInviderCode(config.inviterCode)
-    setRelateInfo(config.relateInfo)
   }, [config])
 
   return (
@@ -49,7 +45,6 @@ export function CodattaSinginContextProvider(props: CodattaConnectContextProvide
         device,
         app,
         inviterCode,
-        relateInfo,
       }}
     >
       {props.children}

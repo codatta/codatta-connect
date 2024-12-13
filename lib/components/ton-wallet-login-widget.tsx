@@ -38,9 +38,7 @@ export default function TonWalletLoginWidget(props: {
         device: config.device,
         channel: config.channel,
         app: config.app
-      },
-      related_info: config.relateInfo
-
+      }
     })
     await props.onLogin(res.data)
     setLoading(false)

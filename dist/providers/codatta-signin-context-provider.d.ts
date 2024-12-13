@@ -4,7 +4,6 @@ export interface CodattaSigninConfig {
     device: TDeviceType;
     app: string;
     inviterCode: string;
-    relateInfo?: object;
 }
 export declare function useCodattaSigninContext(): CodattaSigninConfig;
 interface CodattaConnectContextProviderProps {
