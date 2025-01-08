@@ -1,18 +1,23 @@
-import { ArrowRight } from 'lucide-react'
-import { WalletItem } from '../types/wallet-item.class'
-import { WalletConfig } from '../constant/wallet-book'
+// Import required dependencies
+import { ArrowRight } from "lucide-react";
+import { WalletItem } from "../types/wallet-item.class";
+import { WalletConfig } from "../constant/wallet-book";
 
-const walletIconsImage = 'https://static.codatta.io/codatta-connect/wallet-icons.svg'
+// Base URL for wallet icons
+const walletIconsImage =
+  "https://static.codatta.io/codatta-connect/wallet-icons.svg";
 
-const AppStoreLinkBase = 'https://itunes.apple.com/app/'
-const PlayStoreLinkBase = 'https://play.google.com/store/apps/details?id='
-const ChromeStoreLinkBase = 'https://chromewebstore.google.com/detail/'
-const BraveStoreLinkBase = 'https://chromewebstore.google.com/detail/'
-const FirefoxStoreLinkBase = 'https://addons.mozilla.org/en-US/firefox/addon/'
-const EdgeStoreLinkBase = 'https://microsoftedge.microsoft.com/addons/detail/'
+// Base URLs for different app stores
+const AppStoreLinkBase = "https://itunes.apple.com/app/";
+const PlayStoreLinkBase = "https://play.google.com/store/apps/details?id=";
+const ChromeStoreLinkBase = "https://chromewebstore.google.com/detail/";
+const BraveStoreLinkBase = "https://chromewebstore.google.com/detail/";
+const FirefoxStoreLinkBase = "https://addons.mozilla.org/en-US/firefox/addon/";
+const EdgeStoreLinkBase = "https://microsoftedge.microsoft.com/addons/detail/";
 
+// Component to render individual install option with icon, title and link
 function InstallOption(props: { icon: string; title: string; link: string }) {
-  const { icon, title, link } = props
+  const { icon, title, link } = props;
   return (
     <a
       href={link}
@@ -23,57 +28,73 @@ function InstallOption(props: { icon: string; title: string; link: string }) {
       {title}
       <ArrowRight className="xc-ml-auto xc-text-gray-400"></ArrowRight>
     </a>
-  )
+  );
 }
 
-function getStoreLinks(wallet: WalletConfig['getWallet']) {
+// Helper function to generate store links based on wallet configuration
+function getStoreLinks(wallet: WalletConfig["getWallet"]) {
   const links = {
-    appStoreLink: '',
-    playStoreLink: '',
-    chromeStoreLink: '',
-    braveStoreLink: '',
-    firefoxStoreLink: '',
-    edgeStoreLink: '',
-  }
+    appStoreLink: "",
+    playStoreLink: "",
+    chromeStoreLink: "",
+    braveStoreLink: "",
+    firefoxStoreLink: "",
+    edgeStoreLink: "",
+  };
 
+  // Generate links only if corresponding store IDs exist
   if (wallet?.app_store_id) {
-    links.appStoreLink = `${AppStoreLinkBase}${wallet.app_store_id}`
+    links.appStoreLink = `${AppStoreLinkBase}${wallet.app_store_id}`;
   }
 
   if (wallet?.play_store_id) {
-    links.playStoreLink = `${PlayStoreLinkBase}${wallet.play_store_id}`
+    links.playStoreLink = `${PlayStoreLinkBase}${wallet.play_store_id}`;
   }
 
   if (wallet?.chrome_store_id) {
-    links.chromeStoreLink = `${ChromeStoreLinkBase}${wallet.chrome_store_id}`
+    links.chromeStoreLink = `${ChromeStoreLinkBase}${wallet.chrome_store_id}`;
   }
 
   if (wallet?.brave_store_id) {
-    links.braveStoreLink = `${BraveStoreLinkBase}${wallet.brave_store_id}`
+    links.braveStoreLink = `${BraveStoreLinkBase}${wallet.brave_store_id}`;
   }
 
   if (wallet?.firefox_addon_id) {
-    links.firefoxStoreLink = `${FirefoxStoreLinkBase}${wallet.firefox_addon_id}`
+    links.firefoxStoreLink = `${FirefoxStoreLinkBase}${wallet.firefox_addon_id}`;
   }
 
   if (wallet?.edge_addon_id) {
-    links.edgeStoreLink = `${EdgeStoreLinkBase}${wallet.edge_addon_id}`
+    links.edgeStoreLink = `${EdgeStoreLinkBase}${wallet.edge_addon_id}`;
   }
-  return links
+  return links;
 }
 
+// Main component to display wallet installation options
 export default function GetWallet(props: { wallet: WalletItem }) {
-  const { wallet } = props
+  const { wallet } = props;
 
-  const config = wallet.config?.getWallet
-  const links = getStoreLinks(config!)
+  // Get wallet configuration and generate store links
+  const config = wallet.config?.getWallet;
+  const links = getStoreLinks(config!);
 
   return (
     <div className="xc-flex xc-flex-col xc-items-center">
-      <img className="xc-rounded-md xc-mb-2 xc-h-12 xc-w-12" src={wallet.config?.image} alt="" />
-      <p className="xc-text-lg xc-font-bold">Install {wallet.config?.name} to connect</p>
-      <p className="xc-mb-6 xc-text-sm xc-text-gray-500">Select from your preferred options below:</p>
+      {/* Wallet icon */}
+      <img
+        className="xc-rounded-md xc-mb-2 xc-h-12 xc-w-12"
+        src={wallet.config?.image}
+        alt=""
+      />
+      {/* Installation instructions */}
+      <p className="xc-text-lg xc-font-bold">
+        Install {wallet.config?.name} to connect
+      </p>
+      <p className="xc-mb-6 xc-text-sm xc-text-gray-500">
+        Select from your preferred options below:
+      </p>
+      {/* Grid container for installation options */}
       <div className="xc-grid xc-w-full xc-grid-cols-1 xc-gap-3">
+        {/* Render installation options only if corresponding store IDs exist */}
         {config?.chrome_store_id && (
           <InstallOption
             link={links.chromeStoreLink}
@@ -118,5 +139,5 @@ export default function GetWallet(props: { wallet: WalletItem }) {
         )}
       </div>
     </div>
-  )
+  );
 }

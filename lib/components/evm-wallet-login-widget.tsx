@@ -1,33 +1,40 @@
-import { useState } from 'react'
-import ControlHead from './control-head'
-import TransitionEffect from './transition-effect'
-import WalletQr from './wallet-qr'
-import WalletConnect from './wallet-connect'
-import GetWallet from './get-wallet'
-import { WalletItem } from '../types/wallet-item.class'
-import accountApi, { ILoginResponse } from '../api/account.api'
-import { useCodattaSigninContext } from '@/providers/codatta-signin-context-provider'
+// Import required dependencies
+import { useState } from "react";
+import ControlHead from "./control-head";
+import TransitionEffect from "./transition-effect";
+import WalletQr from "./wallet-qr";
+import WalletConnect from "./wallet-connect";
+import GetWallet from "./get-wallet";
+import { WalletItem } from "../types/wallet-item.class";
+import accountApi, { ILoginResponse } from "../api/account.api";
+import { useCodattaSigninContext } from "@/providers/codatta-signin-context-provider";
 
+// Main wallet login component that handles wallet connection and authentication
 export default function WalletLogin(props: {
-  wallet: WalletItem
-  onLogin: (res: ILoginResponse) => void
-  onBack: () => void
+  wallet: WalletItem;
+  onLogin: (res: ILoginResponse) => void;
+  onBack: () => void;
 }) {
-  const { wallet } = props
-  const [step, setStep] = useState(wallet.installed ? 'connect' : 'qr')
-  const config = useCodattaSigninContext()
+  const { wallet } = props;
+  // Set initial step based on whether wallet is installed
+  const [step, setStep] = useState(wallet.installed ? "connect" : "qr");
+  const config = useCodattaSigninContext();
 
-
-  async function handleSignFinish(wallet: WalletItem, params: {
-    message: string
-    nonce: string
-    signature: string
-    wallet_name: string
-  }) {
+  // Handle wallet signature verification and login
+  async function handleSignFinish(
+    wallet: WalletItem,
+    params: {
+      message: string;
+      nonce: string;
+      signature: string;
+      wallet_name: string;
+    }
+  ) {
+    // Call API to authenticate wallet login
     const res = await accountApi.walletLogin({
-      account_type: 'block_chain',
-      account_enum: 'C',
-      connector: 'codatta_wallet',
+      account_type: "block_chain",
+      account_enum: "C",
+      connector: "codatta_wallet",
       inviter_code: config.inviterCode,
       wallet_name: wallet.config?.name || wallet.key,
       address: await wallet.getAddress(),
@@ -38,32 +45,36 @@ export default function WalletLogin(props: {
       source: {
         device: config.device,
         channel: config.channel,
-        app: config.app
-      }
-    })
-    await props.onLogin(res.data)
+        app: config.app,
+      },
+    });
+    await props.onLogin(res.data);
   }
 
+  // Render wallet connection interface based on current step
   return (
     <TransitionEffect>
       <div className="xc-mb-6">
-        <ControlHead title={'Connect wallet'} onBack={props.onBack} />
+        <ControlHead title={"Connect wallet"} onBack={props.onBack} />
       </div>
-      {step === 'qr' && (
+      {/* QR code scanning step */}
+      {step === "qr" && (
         <WalletQr
           wallet={wallet}
-          onGetExtension={() => setStep('get-extension')}
+          onGetExtension={() => setStep("get-extension")}
           onSignFinish={handleSignFinish}
         ></WalletQr>
       )}
-      {step === 'connect' && (
+      {/* Direct wallet connection step */}
+      {step === "connect" && (
         <WalletConnect
-          onShowQrCode={() => setStep('qr')}
+          onShowQrCode={() => setStep("qr")}
           wallet={wallet}
           onSignFinish={handleSignFinish}
         ></WalletConnect>
       )}
-      {step === 'get-extension' && <GetWallet wallet={wallet}></GetWallet>}
+      {/* Wallet extension installation step */}
+      {step === "get-extension" && <GetWallet wallet={wallet}></GetWallet>}
     </TransitionEffect>
-  )
+  );
 }
