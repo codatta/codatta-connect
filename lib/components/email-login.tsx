@@ -113,7 +113,7 @@ export default function EmailLoginWidget(props: {
       </div>
 
       <div className='xc-text-center xc-text-sm xc-text-gray-400'>
-        Not get it? {count ? `Recend in ${count}s` : <button onClick={() => sendEmailCode(email)}>Send again</button>}
+        Not get it? {count ? `Resend in ${count}s` : <button onClick={() => sendEmailCode(email)}>Send again</button>}
       </div>
 
     </TransitionEffect>
