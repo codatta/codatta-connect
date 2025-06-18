@@ -82,7 +82,6 @@ export default function WalletQr(props: {
     try {
       setGuideType('scan')
       provider.on('display_uri', (uri:string) => {
-        console.log('display_uri', uri)
         setWcUri(uri)
         setUriLoading(false)
         setGuideType('scan')
